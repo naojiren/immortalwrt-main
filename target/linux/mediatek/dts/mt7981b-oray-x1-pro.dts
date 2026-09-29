@@ -1,0 +1,105 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/dts-v1/;
+#include "mt7981b-cudy-tr3000-v1.dtsi"
+
+/*
+ * The board identity and flash layout follow mt7981-oray-x1-pro.dts and
+ * mt7981_oray_x1-pro_defconfig from Yuzhii0718/bl-mt798x-dhcpd.  The common
+ * TR3000 v1 DTSI supplies the otherwise omitted Linux hardware description.
+ */
+
+/ {
+	model = "Oray X1 Pro";
+	compatible = "oray,x1-pro", "cudy,tr3000-v1", "mediatek,mt7981";
+};
+
+&spi_nand {
+	spi-cal-enable;
+	spi-cal-mode = "read-data";
+	spi-cal-datalen = <7>;
+	spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4e 0x41 0x4e 0x44>;
+	spi-cal-addrlen = <5>;
+	spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
+
+	mediatek,nmbm;
+	mediatek,bmt-max-ratio = <1>;
+	mediatek,bmt-max-reserved-blocks = <64>;
+
+	partitions {
+		/delete-node/ partition@0;
+		/delete-node/ partition@100000;
+		/delete-node/ partition@180000;
+		/delete-node/ partition@380000;
+		/delete-node/ partition@3c0000;
+		/delete-node/ partition@5c0000;
+
+		partition@0 {
+			label = "bl2";
+			reg = <0x000000 0x100000>;
+			read-only;
+		};
+
+		partition@100000 {
+			label = "u-boot-env";
+			reg = <0x100000 0x080000>;
+			read-only;
+		};
+
+		factory: partition@180000 {
+			label = "Factory";
+			reg = <0x180000 0x200000>;
+			read-only;
+
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				eeprom_factory_0: eeprom@0 {
+					reg = <0x0 0x1000>;
+				};
+			};
+		};
+
+		partition@380000 {
+			label = "fip";
+			reg = <0x380000 0x200000>;
+			read-only;
+		};
+
+		partition@580000 {
+			label = "bdinfo";
+			reg = <0x580000 0x080000>;
+			read-only;
+
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				macaddr_bdinfo_de00: macaddr@de00 {
+					compatible = "mac-base";
+					reg = <0xde00 0x6>;
+					#nvmem-cell-cells = <1>;
+				};
+			};
+		};
+
+		partition@600000 {
+			label = "kpanic";
+			reg = <0x600000 0x200000>;
+		};
+
+		ubi: partition@800000 {
+			label = "ubi";
+			reg = <0x800000 0x7000000>;
+			compatible = "linux,ubi";
+		};
+	};
+};
+
+&wifi {
+	nvmem-cells = <&eeprom_factory_0>;
+	nvmem-cell-names = "eeprom";
+};

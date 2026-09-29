@@ -5,6 +5,13 @@ board=$(board_name)
 board_config_update
 
 case $board in
+netcore,n30-pro)
+	ucidef_set_interface "lan" ipaddr "192.168.6.1"
+	ucidef_set_root_password_plain "password"
+	ucidef_set_country "CN"
+	ucidef_set_wireless 2g "ImmortalWrt"
+	ucidef_set_wireless 5g "ImmortalWrt-5G" "" "" "HE160"
+	;;
 openwrt,one)
 	ucidef_set_wireless_mac_count 2g 7
 	ucidef_set_wireless_mac_count 5g 7

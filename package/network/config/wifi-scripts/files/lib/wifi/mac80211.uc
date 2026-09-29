@@ -86,6 +86,8 @@ for (let phy_name, phy in board.wlan) {
 				defaults = null;
 			num_global_macaddr = board.wlan.defaults.ssids?.[band_name]?.mac_count;
 		}
+		if (defaults?.htmode)
+			htmode = defaults.htmode;
 
 		if (length(info.radios) > 0)
 			id += `\nset ${s}.radio='${radio.index}'`;

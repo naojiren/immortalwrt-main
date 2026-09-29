@@ -1,0 +1,23 @@
+From: Codex build workaround <noreply@openai.com>
+Subject: [PATCH] libbb: cancel gzip feeder before joining it
+
+When extracting nested ipk archives, the feeder thread may remain blocked in
+pipe I/O after the decompressor has been killed.  Joining such a thread can
+deadlock the host opkg used by package/install.  Cancellation is safe here:
+gzip_close() has already closed the stream and terminated the child process,
+and the feeder routine only performs cancellation-point read/write calls.
+
+--- a/libbb/gzip.c
++++ b/libbb/gzip.c
+@@ -194,8 +194,10 @@ int gzip_close(struct gzip_handle *zh)
+ 	if (zh->file)
+ 		fclose(zh->file);
+ 
+-	if (zh->thread)
++	if (zh->thread) {
++		pthread_cancel(zh->thread);
+ 		pthread_join(zh->thread, NULL);
++	}
+ 
+ 	sigaction(SIGPIPE, &zh->pipe_sa, NULL);
+ 

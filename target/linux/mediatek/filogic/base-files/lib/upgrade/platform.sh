@@ -93,6 +93,7 @@ platform_do_upgrade() {
 	openwrt,one|\
 	netcore,n60|\
 	netcore,n60-pro|\
+	netcore,n30-pro|\
 	qihoo,360t7|\
 	routerich,ax3000-ubootmod|\
 	tplink,tl-7dr7230-v1|\
